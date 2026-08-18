@@ -1,50 +1,66 @@
 package org.example.crudexample.controller;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.example.crudexample.entity.Product;
 import org.example.crudexample.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api/products")
 public class ProductController {
 
-    @Autowired
     private final ProductService productService;
 
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
-    @GetMapping("/products")
-    public List<Product> findAll() {
-        return productService.findAllProducts();
+    @GetMapping
+    public ResponseEntity<?> findAllProducts() {
+        List<Product> products = productService.getAllProducts();
+        return ResponseEntity.ok(products);
     }
 
-    @GetMapping("/product/{id}")
-    public ResponseEntity<Product> findById(@PathVariable Long id) throws EntityNotFoundException {
-        Product product = productService.findById(id);
-        return ResponseEntity.ok().body(product);
+    @GetMapping("/{id}")
+    public ResponseEntity<Product> findProductById(@PathVariable Long id) {
+        try {
+            Product product = productService.getProductById(id);
+            return ResponseEntity.ok(product);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @PostMapping("/product")
-    public Product createProduct(@RequestBody Product product) {
-        return productService.save(product);
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Product createProduct(@Valid @RequestBody Product product) {
+        if (product == null) {
+            throw new EntityNotFoundException("Тело запроса не может быть пустым");
+        }
+        return productService.createProduct(product);
     }
 
-    @PutMapping("/product/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) throws EntityNotFoundException {
-        Product updatedProduct = productService.updateProduct(id, product);
-        return ResponseEntity.ok().body(updatedProduct);
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProductById(@PathVariable Long id, @RequestBody Product product) {
+        try {
+            Product updateProduct = productService.updateProduct(id, product);
+            return ResponseEntity.ok(updateProduct);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @DeleteMapping("/product/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable Long id) throws EntityNotFoundException {
-        productService.deleteProductById(id);
-        return ResponseEntity.ok("Продукт " + id + " был удален");
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProductById(@PathVariable Long id) {
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

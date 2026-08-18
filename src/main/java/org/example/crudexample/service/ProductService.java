@@ -1,49 +1,53 @@
 package org.example.crudexample.service;
-
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.example.crudexample.entity.Product;
 import org.example.crudexample.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
 
-    @Autowired
     private final ProductRepository productRepository;
 
     public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
-    public List<Product> findAllProducts() {
+    public Product getProductById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Продукт с id %s не найден", id)));
+    }
+
+    public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    public Product findById(Long id) throws EntityNotFoundException {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Продукт не найден " + id));
-    }
-
-    public Product save(Product product) {
+    @Transactional
+    public Product createProduct(Product product) {
+        if (product.getId() != null) {
+            throw new IllegalArgumentException("Продукт существует");
+        }
         return productRepository.save(product);
     }
 
-    public Product updateProduct(Long id, Product product) throws EntityNotFoundException {
-        Product oldProduct = productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Продукт не найден " + id));
-        oldProduct.setId(product.getId());
-        oldProduct.setName(product.getName());
-        oldProduct.setQuantity(product.getQuantity());
-        Product updatedProduct = productRepository.save(oldProduct);
-        return updatedProduct;
+    @Transactional
+    public Product updateProduct(Long id, Product product) {
+        if (productRepository.findById(id).isEmpty()) {
+            throw new EntityNotFoundException(String.format("Продукт с id %s не найден", id));
+        }
+        product.setId(id);
+        return productRepository.save(product);
     }
 
-    public void deleteProductById(Long id) {
-        productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Продукт не найден " + id));
-                productRepository.deleteById(id);
+    @Transactional
+    public void deleteProduct(Long id) {
+        if (productRepository.findById(id).isEmpty()) {
+            throw new EntityNotFoundException(String.format("Продукт с id %s не найден", id));
+        }
+        productRepository.delete(id);
     }
 }

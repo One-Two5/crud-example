@@ -1,6 +1,7 @@
 package org.example.crudexample.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "products")
@@ -9,15 +10,16 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+
+    @NotBlank(message = "Наименование не продукта не должно быть пустым")
+    @Column(nullable = false)
     private String name;
+
+    @NotBlank(message = "Колличество продукта не должно быть пустым")
+    @Column(nullable = false)
     private String quantity;
 
     public Product() {
-    }
-    public Product(Long id, String name, String quantity) {
-        this.id = id;
-        this.name = name;
-        this.quantity = quantity;
     }
 
     public Long getId() {
