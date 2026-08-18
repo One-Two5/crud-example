@@ -3,48 +3,49 @@ package org.example.crudexample.controller;
 import jakarta.persistence.EntityNotFoundException;
 import org.example.crudexample.entity.Product;
 import org.example.crudexample.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api/products")
 public class ProductController {
 
-    @Autowired
     private final ProductService productService;
 
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
-    @GetMapping("/products")
-    public List<Product> findAll() {
-        return productService.findAllProducts();
+    @GetMapping
+    public List<Product> findAllProducts() {
+        return productService.getAllProducts();
     }
 
-    @GetMapping("/product/{id}")
-    public ResponseEntity<Product> findById(@PathVariable Long id) throws EntityNotFoundException {
-        Product product = productService.findById(id);
-        return ResponseEntity.ok().body(product);
+    @GetMapping("/{id}")
+    public Product findProductById(@PathVariable Long id) {
+        return productService.getProductById(id);
     }
 
-    @PostMapping("/product")
+    @PostMapping("/new")
     public Product createProduct(@RequestBody Product product) {
-        return productService.save(product);
+        return productService.createProduct(product);
     }
 
-    @PutMapping("/product/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) throws EntityNotFoundException {
-        Product updatedProduct = productService.updateProduct(id, product);
-        return ResponseEntity.ok().body(updatedProduct);
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProductById(@PathVariable Long id, @RequestBody Product product) throws EntityNotFoundException {
+        if (product.getId() == null) {
+            productService.createProduct(product);
+        } else {
+            productService.updateProduct(id, product);
+        }
+        return ResponseEntity.ok(product);
     }
 
-    @DeleteMapping("/product/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable Long id) throws EntityNotFoundException {
-        productService.deleteProductById(id);
-        return ResponseEntity.ok("Продукт " + id + " был удален");
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProductById(@PathVariable Long id) throws EntityNotFoundException {
+        productService.deleteProduct(id);
+        return ResponseEntity.ok().build();
     }
 }
