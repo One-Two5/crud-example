@@ -37,11 +37,11 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product createProduct(@Valid @RequestBody Product product) {
+    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
         if (product == null) {
             throw new EntityNotFoundException("Тело запроса не может быть пустым");
         }
-        return productService.createProduct(product);
+        return ResponseEntity.ok(productService.createProduct(product));
     }
 
     @PutMapping("/{id}")

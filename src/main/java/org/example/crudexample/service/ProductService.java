@@ -6,7 +6,6 @@ import org.example.crudexample.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -29,7 +28,7 @@ public class ProductService {
     @Transactional
     public Product createProduct(Product product) {
         if (product.getId() != null) {
-            throw new IllegalArgumentException("Продукт существует");
+            throw new IllegalArgumentException("Продукт уже существует");
         }
         return productRepository.save(product);
     }

@@ -1,5 +1,8 @@
 package org.example.crudexample.config;
 
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,11 +12,12 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.sql.DataSource;
+import java.util.List;
 import java.util.Properties;
 
 @Configuration
 @PropertySource("classpath:/application.properties")
-public class HibernateConfig {
+public class ApplicationConfig {
 
     @Value("${spring.datasource.driver-class-name}")
     private String driverClassName;
@@ -58,5 +62,13 @@ public class HibernateConfig {
         properties.put("hibernate.show_sql", hibernateShowSql);
         properties.setProperty("hibernate.hbm2ddl.auto", hibernateHbm2ddlAuto);
         return properties;
+    }
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .servers(List.of(new Server().url("http://localhost:8080")))
+                .info(new Info().title("CRUD Example API")
+                        .description("CRUD Example API"));
     }
 }
