@@ -1,16 +1,24 @@
 package org.example.crudexample.service;
 
-import jakarta.annotation.PostConstruct;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class GenerateTokenService {
 
-    private final Map<String, Boolean> activeTokens = new ConcurrentHashMap<>();
+    private final Cache<String,Boolean> activeTokens;
+
+    public GenerateTokenService(@Value("${spring.token.ttl-minutes}") long ttlMinutes) {
+        this.activeTokens = Caffeine.newBuilder()
+                .expireAfterWrite(ttlMinutes, TimeUnit.MINUTES)
+                .build();
+    }
 
     public String generateToken() {
         String uuid = UUID.randomUUID().toString();
@@ -23,6 +31,6 @@ public class GenerateTokenService {
         if (base64Token == null) {
             return false;
         }
-        return activeTokens.containsKey(base64Token);
+        return activeTokens.getIfPresent(base64Token) != null;
     }
 }

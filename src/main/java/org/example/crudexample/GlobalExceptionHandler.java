@@ -1,4 +1,4 @@
-package org.example.crudexample.controller;
+package org.example.crudexample;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
