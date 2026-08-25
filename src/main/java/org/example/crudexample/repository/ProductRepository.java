@@ -5,7 +5,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
-import org.example.crudexample.entity.Product;
+import org.example.crudexample.dto.Product;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 

@@ -2,7 +2,7 @@ package org.example.crudexample.controller;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.example.crudexample.entity.Product;
+import org.example.crudexample.dto.Product;
 import org.example.crudexample.service.GenerateTokenService;
 import org.example.crudexample.service.ProductService;
 import org.springframework.http.HttpStatus;
@@ -23,8 +23,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<?> findAllProducts(@RequestHeader(value = "X-Auth-Token", required = false )
-                                                 String token) {
+    public ResponseEntity<?> findAllProducts(@RequestHeader(value = "X-Auth-Token") String token) {
         if (token == null || !generateTokenService.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
         }
@@ -34,8 +33,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findProductById(@PathVariable Long id,
-                                                   @RequestHeader(value = "X-Auth-Token", required = false )
-                                                   String token) {
+                                                   @RequestHeader(value = "X-Auth-Token") String token) {
         if (token == null || !generateTokenService.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
         }
@@ -49,7 +47,7 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<?> createProduct(@Valid @RequestBody Product product,
-                                           @RequestHeader(value = "X-Auth-Token", required = false )
+                                           @RequestHeader(value = "X-Auth-Token")
                                            String token) {
         if (token == null || !generateTokenService.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
@@ -62,8 +60,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProductById(@PathVariable Long id, @RequestBody Product product,
-                                                     @RequestHeader(value = "X-Auth-Token", required = false )
-                                                     String token) {
+                                                     @RequestHeader(value = "X-Auth-Token") String token) {
         if (token == null || !generateTokenService.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
         }
@@ -77,8 +74,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProductById(@PathVariable Long id,
-                                                  @RequestHeader(value = "X-Auth-Token", required = false)
-                                                  String token) {
+                                                  @RequestHeader(value = "X-Auth-Token") String token) {
         if (token == null || !generateTokenService.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
         }
@@ -92,8 +88,7 @@ public class ProductController {
 
     @PostMapping("/batch")
     public ResponseEntity<?> createBulkProduct(@RequestBody List<Product> products,
-                                               @RequestHeader(value = "X-Auth-Token", required = false)
-                                               String token) {
+                                               @RequestHeader(value = "X-Auth-Token") String token) {
         if (token == null || generateTokenService.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
         }

@@ -40,12 +40,9 @@ public class GenerateTokenService {
             return false;
         }
         int remaining = usesLeft.decrementAndGet();
-        if (remaining < 0) {
+        if (remaining <= 0) {
             activeTokens.invalidate(base64Token);
             return false;
-        }
-        if (remaining == 0) {
-            activeTokens.invalidate(base64Token);
         }
         return true;
     }

@@ -1,7 +1,7 @@
 package org.example.crudexample.service;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.example.crudexample.entity.Product;
+import org.example.crudexample.dto.Product;
 import org.example.crudexample.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 

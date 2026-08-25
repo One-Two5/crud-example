@@ -1,4 +1,4 @@
-package org.example.crudexample.entity;
+package org.example.crudexample.dto;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
