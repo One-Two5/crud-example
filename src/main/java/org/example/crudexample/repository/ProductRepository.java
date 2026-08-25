@@ -6,6 +6,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.example.crudexample.entity.Product;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -44,5 +45,13 @@ public class ProductRepository {
         if (product != null) {
             entityManager.remove(product);
         }
+    }
+
+
+    public void saveAll(List<Product> products) {
+        for (Product product : products) {
+            entityManager.persist(product);
+        }
+        ResponseEntity.ok().body(products.iterator().next());
     }
 }

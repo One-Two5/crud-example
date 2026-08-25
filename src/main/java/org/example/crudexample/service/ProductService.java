@@ -49,4 +49,9 @@ public class ProductService {
         }
         productRepository.delete(id);
     }
+
+    @Transactional
+    public void saveAllProducts(List<Product> products) {
+        productRepository.saveAll(products);
+    }
 }

@@ -33,20 +33,20 @@ public class GenerateTokenService {
 
     public boolean validateToken(String base64Token) {
         if (base64Token == null) {
-            return true;
+            return false;
         }
         AtomicInteger usesLeft = activeTokens.getIfPresent(base64Token);
         if (usesLeft == null) {
-            return true;
+            return false;
         }
         int remaining = usesLeft.decrementAndGet();
         if (remaining < 0) {
             activeTokens.invalidate(base64Token);
-            return true;
+            return false;
         }
         if (remaining == 0) {
             activeTokens.invalidate(base64Token);
         }
-        return false;
+        return true;
     }
 }

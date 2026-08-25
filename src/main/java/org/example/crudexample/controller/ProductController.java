@@ -23,7 +23,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<?> findAllProducts(@RequestHeader(value = "X-Auth_Token", required = false )
+    public ResponseEntity<?> findAllProducts(@RequestHeader(value = "X-Auth-Token", required = false )
                                                  String token) {
         if (token == null || !generateTokenService.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
@@ -34,7 +34,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findProductById(@PathVariable Long id,
-                                                   @RequestHeader(value = "X-Auth_Token", required = false )
+                                                   @RequestHeader(value = "X-Auth-Token", required = false )
                                                    String token) {
         if (token == null || !generateTokenService.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
@@ -87,6 +87,21 @@ public class ProductController {
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<?> createBulkProduct(@RequestBody List<Product> products,
+                                               @RequestHeader(value = "X-Auth-Token", required = false)
+                                               String token) {
+        if (token == null || generateTokenService.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
+        }
+        try {
+            productService.saveAllProducts(products);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
