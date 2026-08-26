@@ -1,11 +1,14 @@
 package org.example.crudexample.service;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.example.crudexample.dto.Product;
+import org.example.crudexample.dto.ProductDto;
 import org.example.crudexample.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -16,30 +19,30 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public Product getProductById(Long id) {
+    public ProductDto getProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Продукт с id %s не найден", id)));
     }
 
-    public List<Product> getAllProducts() {
+    public List<ProductDto> getAllProducts() {
         return productRepository.findAll();
     }
 
     @Transactional
-    public Product createProduct(Product product) {
-        if (product.getId() != null) {
+    public ProductDto createProduct(ProductDto productDto) {
+        if (productDto.getId() != null) {
             throw new IllegalArgumentException("Продукт уже существует");
         }
-        return productRepository.save(product);
+        return productRepository.save(productDto);
     }
 
     @Transactional
-    public Product updateProduct(Long id, Product product) {
+    public ProductDto updateProduct(Long id, ProductDto productDto) {
         if (productRepository.findById(id).isEmpty()) {
             throw new EntityNotFoundException(String.format("Продукт с id %s не найден", id));
         }
-        product.setId(id);
-        return productRepository.save(product);
+        productDto.setId(id);
+        return productRepository.save(productDto);
     }
 
     @Transactional
@@ -51,7 +54,23 @@ public class ProductService {
     }
 
     @Transactional
-    public void saveAllProducts(List<Product> products) {
-        productRepository.saveAll(products);
+    public void saveAllProducts(List<ProductDto> productDtos) {
+        productRepository.saveAll(productDtos);
+    }
+
+    @Transactional
+    public Map<String, String> getQuantitiesByProductName(List<String> names) {
+        List<ProductDto> productsDto = productRepository.findByNameIn(names);
+         Map<String, String> foundMap = productsDto.stream().collect(Collectors.toMap(
+                ProductDto::getName,
+                ProductDto::getQuantity,
+                (existingProduct, replacement) -> replacement
+        ));
+         Map<String, String> resultMap = new LinkedHashMap<>();
+         for (String name : names) {
+             String quantity = foundMap.getOrDefault(name, "Продукт отсутствует");
+             resultMap.put(name, quantity);
+         }
+         return resultMap;
     }
 }

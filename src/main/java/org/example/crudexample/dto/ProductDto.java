@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "products")
-public class Product {
+public class ProductDto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -19,7 +19,7 @@ public class Product {
     @Column(nullable = false)
     private String quantity;
 
-    public Product() {
+    public ProductDto() {
     }
 
     public Long getId() {
