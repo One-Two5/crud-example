@@ -2,116 +2,104 @@ package org.example.crudexample.controller;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.example.crudexample.dto.ProductDto;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.example.crudexample.dto.*;
+import org.example.crudexample.entity.Product;
 import org.example.crudexample.service.GenerateTokenService;
 import org.example.crudexample.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/products")
+@RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
     private final GenerateTokenService generateTokenService;
 
-    public ProductController(ProductService productService, GenerateTokenService generateTokenService) {
-        this.productService = productService;
-        this.generateTokenService = generateTokenService;
-    }
-
     @GetMapping
-    public ResponseEntity<?> findAllProducts(@RequestHeader(value = "X-Auth-Token", required = true) String token) {
-        if (token == null || !generateTokenService.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
+    public ResponseEntity<List<ProductResponse>> findAllProducts(@RequestHeader(value = "X-Auth-Token", required = true)
+                                                               String token) {
+        if (token.isBlank() || !generateTokenService.validateToken(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ошибка получения токена, Неверный или истекший токен");
         }
-        List<ProductDto> productsDto = productService.getAllProducts();
-        return ResponseEntity.ok(productsDto);
+        List<ProductResponse> products = productService.getAllProducts();
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findProductById(@PathVariable Long id,
+    public ResponseEntity<ProductResponse> findProductById(@PathVariable Long id,
                                                    @RequestHeader(value = "X-Auth-Token") String token) {
         if (token.isBlank() || !generateTokenService.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ошибка получения токена, Неверный или истекший токен");
         }
-        try {
-            ProductDto productDto = productService.getProductById(id);
-            return ResponseEntity.ok(productDto);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+            ProductResponse response = productService.getProductById(id);
+            return ResponseEntity.ok(response);
     }
 
     @PostMapping
-    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto,
-                                           @RequestHeader(value = "X-Auth-Token")
-                                           String token) {
+    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductCreateDto dto,
+                                                         @RequestHeader(value = "X-Auth-Token")
+                                                         String token) {
         if (token.isBlank() || !generateTokenService.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ошибка получения токена, Неверный или истекший токен");
         }
-        if (productDto == null) {
-            throw new EntityNotFoundException("Тело запроса не может быть пустым");
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(productDto));
+        ProductResponse response = productService.createProduct(dto);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProductById(@PathVariable Long id, @RequestBody ProductDto productDto,
-                                                     @RequestHeader(value = "X-Auth-Token") String token) {
+    public ResponseEntity<ProductResponse> updateProductById(@PathVariable Long id,
+                                                             @RequestBody ProductUpdateDto dto,
+                                                             @RequestHeader(value = "X-Auth-Token") String token) {
         if (token.isBlank()|| !generateTokenService.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ошибка получения токена, Неверный или истекший токен");
         }
-        try {
-            ProductDto updateProductDto = productService.updateProduct(id, productDto);
-            return ResponseEntity.ok(updateProductDto);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+            ProductResponse response = productService.updateProduct(id, dto);
+            return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProductById(@PathVariable Long id,
+    public ResponseEntity<Void> deleteProductById(@PathVariable Long id,
                                                   @RequestHeader(value = "X-Auth-Token") String token) {
         if (token.isBlank() || !generateTokenService.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ошибка получения токена, Неверный или истекший токен");
         }
-        try {
             productService.deleteProduct(id);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+            return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/batch")
-    public ResponseEntity<?> createBulkProduct(@RequestBody List<ProductDto> productDto,
+    public ResponseEntity<ProductResponse> createBulkProduct(@RequestBody List<ProductCreateDto> products,
                                                @RequestHeader(value = "X-Auth-Token") String token) {
         if (token.isBlank() || !generateTokenService.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ошибка получения токена, Неверный или истекший токен");
         }
-        try {
-            productService.saveAllProducts(productDto);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+
+        List<ProductResponse> savedProducts = productService.saveAllProducts(products);
+        return savedProducts.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok().build();
     }
 
     @PostMapping("/quantity")
-    public ResponseEntity<?> getQuantities(@RequestBody List<String> names,
-                                             @RequestHeader(value = "X-Auth-Token") String token) {
+    public ResponseEntity<?> getQuantities(@RequestBody ProductNameRequest request,
+                                           @RequestHeader(value = "X-Auth-Token") String token) {
         if (token.isBlank() || !generateTokenService.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
         }
         try {
-            Map<String, String> quantities = productService.getQuantitiesByProductName(names);
-            return ResponseEntity.ok(quantities);
+            ProductQuantityResponse response = productService.getQuantitiesByProductName(request);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            throw new RuntimeException("Не удалось получить список продуктов!");
+            log.error("Не удалось получить список продуктов!%s".formatted(e.getMessage()));
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
