@@ -8,7 +8,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.example.crudexample.entity.Product;
-import org.example.crudexample.mapper.ProductMapperImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
@@ -21,7 +20,6 @@ public class ProductRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
-    private final ProductMapperImpl productMapper;
 
     public Optional<Product> findById(Long id) {
         Product product = entityManager.find(Product.class, id);

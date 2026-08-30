@@ -1,11 +1,9 @@
 package org.example.crudexample.controller;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.crudexample.dto.*;
-import org.example.crudexample.entity.Product;
 import org.example.crudexample.service.GenerateTokenService;
 import org.example.crudexample.service.ProductService;
 import org.springframework.http.HttpStatus;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -31,6 +28,7 @@ public class ProductController {
         if (token.isBlank() || !generateTokenService.validateToken(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ошибка получения токена, Неверный или истекший токен");
         }
+
         List<ProductResponse> products = productService.getAllProducts();
         return ResponseEntity.ok(products);
     }
@@ -41,6 +39,7 @@ public class ProductController {
         if (token.isBlank() || !generateTokenService.validateToken(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ошибка получения токена, Неверный или истекший токен");
         }
+
             ProductResponse response = productService.getProductById(id);
             return ResponseEntity.ok(response);
     }
@@ -52,6 +51,7 @@ public class ProductController {
         if (token.isBlank() || !generateTokenService.validateToken(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ошибка получения токена, Неверный или истекший токен");
         }
+
         ProductResponse response = productService.createProduct(dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -94,6 +94,7 @@ public class ProductController {
         if (token.isBlank() || !generateTokenService.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный или истекший токен");
         }
+
         try {
             ProductQuantityResponse response = productService.getQuantitiesByProductName(request);
             return ResponseEntity.ok(response);

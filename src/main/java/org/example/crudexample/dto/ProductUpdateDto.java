@@ -4,24 +4,28 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-
-public record ProductUpdateDto(
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductUpdateDto {
 
         @NotBlank(message = "Название товара не может быть пустым")
         @Size(max = 255)
-        String name,
+        private String name;
 
         @Size(max = 1000)
-        String description,
+        private String description;
 
         @NotNull(message = "Цена должна быть указана")
         @PositiveOrZero
-        BigDecimal price,
+        private BigDecimal price;
 
         @NotNull(message = "Количество должно быть указано")
         @PositiveOrZero
-        Integer stockQuantity
-) {
+        private Integer stockQuantity;
 }

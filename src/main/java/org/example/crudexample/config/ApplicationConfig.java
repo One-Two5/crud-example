@@ -69,6 +69,7 @@ public class ApplicationConfig {
         return new OpenAPI()
                 .servers(List.of(new Server().url("http://localhost:8080")))
                 .info(new Info().title("CRUD Example API")
-                        .description("CRUD Example API"));
+                        .description("CRUD Example API")
+                        .version("1.0.0"));
     }
 }
