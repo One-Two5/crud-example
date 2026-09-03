@@ -1,9 +1,6 @@
 package org.example.crudexample.mapper;
 
-import io.swagger.v3.oas.models.info.License;
-import org.example.crudexample.dto.ProductCreateDto;
-import org.example.crudexample.dto.ProductResponse;
-import org.example.crudexample.dto.ProductUpdateDto;
+import org.example.crudexample.dto.*;
 import org.example.crudexample.entity.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,7 +13,6 @@ import java.util.List;
 public interface ProductMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt",  ignore = true)
     Product toEntity(ProductCreateDto createDto);
 
     ProductResponse toResponse(Product product);
